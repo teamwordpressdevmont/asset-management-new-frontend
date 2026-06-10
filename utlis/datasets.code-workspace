@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "../../datasets"
+		},
+		{
+			"path": "../../asset-managment-frontend"
+		},
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../../../xampp/htdocs/medium"
+		}
+	],
+	"settings": {}
+}
