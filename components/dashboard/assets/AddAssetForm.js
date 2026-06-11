@@ -89,7 +89,8 @@ export default function AddAssetForm() {
   const router = useRouter();
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState(initialErrors);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // fetching
+  const [saving, setSaving] = useState(false); // submit
   const [companies, setCompanies] = useState([]);
   const [categories, setCategories] = useState([]);
   const [vendors, setVendors] = useState([]);
@@ -113,12 +114,11 @@ export default function AddAssetForm() {
       setLoading(true);
 
       try {
-        const [companiesRes, categoriesRes, vendorsRes] =
-          await Promise.all([
-            API.getCompanies({ limit: 100, status: "active" }),
-            API.getAssetCategories({ limit: 100, status: "active" }),
-            API.getVendors({ limit: 100, status: "active" }),
-          ]);
+        const [companiesRes, categoriesRes, vendorsRes] = await Promise.all([
+          API.getCompanies({ limit: 100, status: "active" }),
+          API.getAssetCategories({ limit: 100, status: "active" }),
+          API.getVendors({ limit: 100, status: "active" }),
+        ]);
 
         if (companiesRes.success) {
           setCompanies(companiesRes.message?.data ?? []);
@@ -149,21 +149,26 @@ export default function AddAssetForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const errs = validate(formData);
     if (hasError(errs)) {
       setErrors(errs);
       return;
     }
-
-    const res = await API.createAsset(formData);
-    if (res.success) {
-      toast.success(res.message?.message || "Asset created successfully!");
-      router.push("/assets");
-    } else {
-      toast.error(res.message || "Something went wrong. Please try again.");
+    setSaving(true);
+    try {
+      const res = await API.createAsset(formData);
+      if (res.success) {
+        toast.success(res.message?.message || "Asset created successfully!");
+        router.push("/assets");
+      } else {
+        toast.error(res.message || "Something went wrong. Please try again.");
+      }
+    } finally {
+      setSaving(false);
     }
 
-    setLoading(false);
+    setSaving(false);
   };
 
   return (
@@ -670,10 +675,10 @@ export default function AddAssetForm() {
           </Link>
           <button
             type="submit"
-            disabled={loading}
+            disabled={saving}
             className="cursor-pointer gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-[#C6212F] rounded-[10px] hover:bg-[#a81b27] active:scale-[0.98] transition-all duration-200 shadow-[0_4px_14px_rgba(198,33,47,0.3)] hover:shadow-[0_6px_20px_rgba(198,33,47,0.45)] disabled:opacity-60 disabled:cursor-not-allowed min-w-[160px] min-h-[42px] flex items-center justify-center"
           >
-            {loading ? (
+            {saving ? (
               <>
                 <svg
                   className="animate-spin mr-2"
@@ -690,9 +695,7 @@ export default function AddAssetForm() {
                 Saving...
               </>
             ) : (
-              <>
-                Save Asset
-              </>
+              <>Save Asset</>
             )}
           </button>
         </div>

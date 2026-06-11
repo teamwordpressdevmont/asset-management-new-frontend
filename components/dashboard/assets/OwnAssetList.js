@@ -10,6 +10,15 @@ const ROW_H = 53;
 const Sk = ({ w = "100%" }) => (
   <div className="h-3 rounded bg-black/6 animate-pulse" style={{ width: w }} />
 );
+
+const formatCondition = (value) => {
+  if (!value) return "—";
+
+  return value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 export default function OwnAssetList() {
   const [searchInput, setSearchInput] = useState("");
   const [deleting, setDeleting] = useState(null);
@@ -96,32 +105,6 @@ export default function OwnAssetList() {
   const filteredTotal = filtered.length;
   const bodyH = ROW_H * PER_PAGE;
 
-  const handleDelete = async (id) => {
-    const result = await MySwal.fire({
-      title: "Delete Asset?",
-      text: "This action cannot be undone.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!result.isConfirmed) return;
-
-    setDeleting(true);
-
-    const res = await API.deleteAsset(id);
-
-    if (res.success) {
-      toast.success("Asset deleted successfully.");
-      fetchAssets();
-    } else {
-      toast.error(res.message || "Delete failed.");
-    }
-
-    setDeleting(false);
-  };
-
   useEffect(() => {
     fetchAssets();
   }, [fetchAssets]);
@@ -180,7 +163,7 @@ export default function OwnAssetList() {
       setUpdatingId(null);
     }
   };
-  
+
   return (
     <>
       <div className="space-y-5">
@@ -197,24 +180,6 @@ export default function OwnAssetList() {
               {total} asset{total !== 1 ? "s" : ""} total
             </p>
           </div>
-          <Link
-            href="/assets/add"
-            className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#C6212F] rounded-[10px] hover:bg-[#a81b27] transition-all duration-200 shadow-[0_4px_14px_rgba(198,33,47,0.3)] hover:shadow-[0_6px_20px_rgba(198,33,47,0.45)]"
-          >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Add Asset
-          </Link>
         </div>
 
         <div className="bg-white rounded-2xl overflow-hidden border border-[#f0ebe3]">
@@ -359,9 +324,6 @@ export default function OwnAssetList() {
                       <td className="px-4">
                         <div className="flex justify-center gap-2">
                           <div className="w-4 h-4 rounded bg-black/6 animate-pulse" />
-                          <div className="w-4 h-4 rounded bg-black/6 animate-pulse" />
-                          <div className="w-4 h-4 rounded bg-black/6 animate-pulse" />
-                          <div className="w-4 h-4 rounded bg-black/6 animate-pulse" />
                         </div>
                       </td>
                     </tr>
@@ -369,7 +331,7 @@ export default function OwnAssetList() {
                 ) : filtered.length === 0 ? (
                   <tr style={{ height: bodyH }}>
                     <td colSpan={7} className="text-center align-middle">
-                      <div className="flex flex-col items-center justify-center gap-2">
+                      <div className="flex flex-col items-center gap-2">
                         <svg
                           width="36"
                           height="36"
@@ -380,15 +342,18 @@ export default function OwnAssetList() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         >
-                          <circle cx="12" cy="12" r="3" />
-                          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <path d="M16 10a4 4 0 0 1-8 0" />
                         </svg>
+
                         <p className="text-sm text-[#8e8576]">
-                          {searchInput
-                            ? `No results for "${searchInput}"`
+                          {search
+                            ? `No results for "${search}"`
                             : "No assets found"}
                         </p>
-                        {searchInput && (
+
+                        {search && (
                           <button
                             onClick={() => setSearchInput("")}
                             className="text-xs text-[#c6212f] hover:underline"
@@ -438,36 +403,18 @@ export default function OwnAssetList() {
 
                         <td className="px-4 text-center">
                           <span className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                            {asset.condition || "—"}
+                            {formatCondition(asset.condition)}
                           </span>
                         </td>
 
                         <td className="px-4 text-center">
                           <span className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-700">
-                            {asset.status || "—"}
+                            {formatCondition(asset.status)}
                           </span>
                         </td>
 
                         <td className="px-4">
-                          <div className="flex items-center justify-end ">
-                            <Link
-                              href={`/assets/${asset._id}/edit`}
-                              className="p-1 rounded-lg text-[#8e8576] hover:text-[#c6212f] hover:bg-[#c6212f]/8 transition-colors"
-                              title="Edit"
-                            >
-                              <svg
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                              >
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                              </svg>
-                            </Link>
+                          <div className="flex items-start justify-center">
                             <button
                               onClick={() => {
                                 setSelectedAsset(asset);
@@ -477,8 +424,8 @@ export default function OwnAssetList() {
                               className="cursor-pointer p-2 rounded-lg hover:border-[#c6212f] hover:text-[#c6212f]"
                             >
                               <svg
-                                width="16"
-                                height="16"
+                                width="14"
+                                height="14"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -489,61 +436,6 @@ export default function OwnAssetList() {
                                 <path d="M9 14L4 9l5-5" />
                                 <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
                               </svg>
-                            </button>
-                            <Link
-                              href={`/assets/${asset._id}/history`}
-                              className="p-1 rounded-lg text-[#8e8576] hover:text-[#c6212f] hover:bg-[#c6212f]/8 transition-colors"
-                              title="View"
-                            >
-                              <svg
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z" />
-                                <circle cx="12" cy="12" r="3" />
-                              </svg>
-                            </Link>
-                            <button
-                              onClick={() => handleDelete(asset._id)}
-                              disabled={deleting === asset._id}
-                              className="p-1 rounded-lg text-[#8e8576] hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
-                              title="Delete"
-                            >
-                              {deleting === asset._id ? (
-                                <svg
-                                  className="animate-spin"
-                                  width="14"
-                                  height="14"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                >
-                                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                                </svg>
-                              ) : (
-                                <svg
-                                  width="14"
-                                  height="14"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                >
-                                  <polyline points="3 6 5 6 21 6" />
-                                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                                  <path d="M10 11v6M14 11v6" />
-                                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                                </svg>
-                              )}
                             </button>
                           </div>
                         </td>

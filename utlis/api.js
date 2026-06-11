@@ -126,11 +126,19 @@ export const API = {
 
   // notification api start
   getNotifications: () => hitAPI("/notifications", {}, "GET", "yes"),
-  getWarrantyAlerts: () => hitAPI("/notifications/warranty-alerts", {}, "GET", "yes"),
-  markNotificationAsRead: (id) => hitAPI(`/notifications/${id}/read`, {}, "PATCH", "yes"),
-  markAllNotificationsAsRead: () => hitAPI("/notifications/read-all", {}, "PATCH", "yes"),
-  deleteNotification: (id) => hitAPI(`/notifications/${id}`, {}, "DELETE", "yes"),
+  getWarrantyAlerts: () =>
+    hitAPI("/notifications/warranty-alerts", {}, "GET", "yes"),
+  markNotificationAsRead: (id) =>
+    hitAPI(`/notifications/${id}/read`, {}, "PATCH", "yes"),
+  markAllNotificationsAsRead: () =>
+    hitAPI("/notifications/read-all", {}, "PATCH", "yes"),
+  deleteNotification: (id) =>
+    hitAPI(`/notifications/${id}`, {}, "DELETE", "yes"),
   // notification api end
+
+  // dashboard api start
+  getDashboardData: () => hitAPI("/dashboard", {}, "GET", "yes"),
+  // dashboard api end
 };
 
 async function hitAPI(endpoint, data, method, token = null) {

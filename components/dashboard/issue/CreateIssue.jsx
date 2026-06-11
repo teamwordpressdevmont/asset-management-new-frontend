@@ -162,7 +162,7 @@ export default function CreateIssue() {
         <div className="flex items-center gap-5">
           {" "}
           <Link
-            href="/asset-issues"
+            href="/issue"
             className="w-10 h-10 rounded-full bg-[#C6212F] flex items-center justify-center rotate-180"
           >
             {" "}
@@ -247,24 +247,29 @@ export default function CreateIssue() {
               </>
             )}
           </div>
+          {fetching ? (
+            <FieldSkeleton />
+          ) : (
+            <div>
+              <label className="block font-semibold mb-1.5 text-[12px] text-[#544b40]">
+                Issue Start Date <span className="text-[#c6212f]">*</span>
+              </label>
 
-          <div>
-            <label className="block font-semibold mb-1.5 text-[12px] text-[#544b40]">
-              Issue Start Date <span className="text-[#c6212f]">*</span>
-            </label>
+              <div
+                className={errors.issueStartAt ? wrapperError : wrapperNormal}
+              >
+                <input
+                  type="date"
+                  name="issueStartAt"
+                  value={formData.issueStartAt}
+                  onChange={handleChange}
+                  className={inputBase}
+                />
+              </div>
 
-            <div className={errors.issueStartAt ? wrapperError : wrapperNormal}>
-              <input
-                type="date"
-                name="issueStartAt"
-                value={formData.issueStartAt}
-                onChange={handleChange}
-                className={inputBase}
-              />
+              {errors.issueStartAt && <ErrorMsg text={errors.issueStartAt} />}
             </div>
-
-            {errors.issueStartAt && <ErrorMsg text={errors.issueStartAt} />}
-          </div>
+          )}
         </div>
         {/* Description */}
         <div>

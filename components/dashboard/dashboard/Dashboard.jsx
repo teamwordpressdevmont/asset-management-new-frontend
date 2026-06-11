@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getUser } from "@/utlis/auth";
+import { API } from "@/utlis/api";
+
 import {
   FaBoxOpen,
   FaUsers,
@@ -484,18 +486,70 @@ function NotificationItem({ title, message, time, unread, color }) {
 function DashboardSkeleton() {
   return (
     <div className="space-y-5 animate-pulse">
-      <div className="h-12 w-64 bg-black/5 rounded-xl" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
+      {/* Dashboard Label */}
+      <div className="flex items-center gap-2">
+        <div className="w-5 h-[2px] rounded bg-gray-200" />
+        <div className="w-24 h-4 rounded bg-gray-200" />
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className="h-32 bg-white border border-[#f0ebe3] rounded-3xl"
-          />
+            className="bg-white rounded-3xl border border-[#f0ebe3] p-5"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="w-12 h-12 rounded-2xl bg-gray-200" />
+              <div className="w-20 h-7 rounded-full bg-gray-100" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="h-8 w-20 rounded bg-gray-200" />
+              <div className="h-4 w-24 rounded bg-gray-100" />
+            </div>
+          </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 h-80 bg-white border border-[#f0ebe3] rounded-3xl" />
-        <div className="h-80 bg-white border border-[#f0ebe3] rounded-3xl" />
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-3xl border border-[#f0ebe3] p-5">
+        <div className="flex items-center justify-between mb-5">
+          <div className="h-5 w-32 rounded bg-gray-200" />
+          <div className="h-3 w-28 rounded bg-gray-100" />
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="border border-[#f0ebe3] rounded-2xl p-4">
+              <div className="w-10 h-10 rounded-xl bg-gray-200 mb-4" />
+              <div className="h-4 w-24 rounded bg-gray-100" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="bg-white rounded-3xl border border-[#f0ebe3] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#f0ebe3]">
+          <div className="h-5 w-32 rounded bg-gray-200" />
+        </div>
+
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="px-5 py-4 border-b border-[#f0ebe3] last:border-b-0"
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <div className="h-4 w-52 rounded bg-gray-200 mb-2" />
+                <div className="h-3 w-72 rounded bg-gray-100" />
+              </div>
+
+              <div className="h-3 w-10 rounded bg-gray-100 ml-4" />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -503,14 +557,177 @@ function DashboardSkeleton() {
 
 export default function DashboardPage() {
   const [role, setRole] = useState(null);
+  const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
+
+  const fetchDashboard = async () => {
+    setLoading(true);
+
+    const res = await API.getDashboardData();
+
+    if (res.success) {
+      setDashboard(res.message);
+      setRole(res.message.role);
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
     setRole(getUser()?.role?.name ?? "user");
   }, []);
 
-  if (!role) return <DashboardSkeleton />;
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const notificationRes = await API.getNotifications();
+
+      if (notificationRes.success) {
+        setNotifications(notificationRes.message.data || []);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  if (loading || !dashboard) {
+    return <DashboardSkeleton />;
+  }
 
   const config = ROLE_CONFIG[role] ?? ROLE_CONFIG.user;
+
+  let dynamicStats = [];
+
+  if (role === "super_admin") {
+    dynamicStats = [
+      {
+        label: "Total Assets",
+        value: dashboard?.metrics?.totalAssets || 0,
+        trend: "",
+        icon: <FaBoxOpen size={20} />,
+        color: "blue",
+      },
+      {
+        label: "Asset Categories",
+        value: dashboard?.metrics?.totalCategories || 0,
+        trend: "",
+        icon: <FaTags size={20} />,
+        color: "purple",
+      },
+      {
+        label: "Vendors",
+        value: dashboard?.metrics?.totalVendors || 0,
+        trend: "",
+        icon: <FaTruck size={20} />,
+        color: "green",
+      },
+      {
+        label: "Organizations",
+        value: dashboard?.metrics?.totalOrganizations || 0,
+        trend: "",
+        icon: <FaBuilding size={20} />,
+        color: "orange",
+      },
+      {
+        label: "Total Users",
+        value: dashboard?.metrics?.totalUsers || 0,
+        trend: "",
+        icon: <FaUsers size={20} />,
+        color: "pink",
+      },
+      {
+        label: "Issue Reports",
+        value: dashboard?.metrics?.totalIssueReports || 0,
+        trend: "",
+        icon: <FaExclamationTriangle size={20} />,
+        color: "red",
+      },
+    ];
+  }
+
+  if (role === "admin") {
+    dynamicStats = [
+      {
+        label: "Total Assets",
+        value: dashboard?.metrics?.totalAssets || 0,
+        trend: "",
+        icon: <FaBoxOpen size={20} />,
+        color: "blue",
+      },
+      {
+        label: "Asset Categories",
+        value: dashboard?.metrics?.totalCategories || 0,
+        trend: "",
+        icon: <FaTags size={20} />,
+        color: "purple",
+      },
+      {
+        label: "Vendors",
+        value: dashboard?.metrics?.totalVendors || 0,
+        trend: "",
+        icon: <FaTruck size={20} />,
+        color: "green",
+      },
+      {
+        label: "Users",
+        value: dashboard?.metrics?.totalUsers || 0,
+        trend: "",
+        icon: <FaUsers size={20} />,
+        color: "pink",
+      },
+      {
+        label: "Return Requests",
+        value: dashboard?.metrics?.totalReturnRequests || 0,
+        trend: "",
+        icon: <FaUndo size={20} />,
+        color: "orange",
+      },
+      {
+        label: "Issue Reports",
+        value: dashboard?.metrics?.totalIssueReports || 0,
+        trend: "",
+        icon: <FaExclamationTriangle size={20} />,
+        color: "red",
+      },
+    ];
+  }
+
+  if (role === "user") {
+    dynamicStats = [
+      {
+        label: "My Assets",
+        value: dashboard?.metrics?.myAssets || 0,
+        trend: "",
+        icon: <FaBoxOpen size={20} />,
+        color: "blue",
+      },
+      {
+        label: "My Issues",
+        value: dashboard?.metrics?.myIssues || 0,
+        trend: "",
+        icon: <FaClipboardList size={20} />,
+        color: "purple",
+      },
+      {
+        label: "Solved Issues",
+        value: dashboard?.metrics?.solvedIssues || 0,
+        trend: "",
+        icon: <FaCheckCircle size={20} />,
+        color: "green",
+      },
+      {
+        label: "Rejected Issues",
+        value: dashboard?.metrics?.rejectedIssues || 0,
+        trend: "",
+        icon: <FaTimesCircle size={20} />,
+        color: "red",
+      },
+    ];
+  }
 
   return (
     <div className="space-y-5">
@@ -521,7 +738,7 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {config.stats.map((stat) => (
+        {dynamicStats.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
       </div>
@@ -555,9 +772,24 @@ export default function DashboardPage() {
           )}
         </div>
         <div className="divide-y divide-[#f0ebe3]">
-          {config.notifications.map((n, i) => (
-            <NotificationItem key={i} {...n} />
-          ))}
+          {notifications.length === 0 ? (
+            <div className="p-6 text-center text-gray-500">
+              No notifications found
+            </div>
+          ) : (
+            <div className="divide-y divide-[#f0ebe3]">
+              {notifications.map((n) => (
+                <NotificationItem
+                  key={n._id}
+                  title={n.title}
+                  message={n.message}
+                  time={new Date(n.createdAt).toLocaleDateString()}
+                  unread={!n.isRead}
+                  color="red"
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

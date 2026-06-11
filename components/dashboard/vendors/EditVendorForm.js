@@ -187,6 +187,10 @@ export default function EditVendorForm({ id }) {
                     src={preview}
                     alt="avatar"
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                      clearPhoto();
+                    }}
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-1">
@@ -480,22 +484,7 @@ export default function EditVendorForm({ id }) {
                 Updating...
               </>
             ) : (
-              <>
-                Update Vendor
-                <svg
-                  className="ml-2"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12H19M13 6L19 12L13 18" />
-                </svg>
-              </>
+              <>Update Vendor</>
             )}
           </button>
         </div>

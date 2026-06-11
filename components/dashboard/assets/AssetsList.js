@@ -17,6 +17,13 @@ function Sk({ w = "60%" }) {
     />
   );
 }
+const formatCondition = (value) => {
+  if (!value) return "—";
+
+  return value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
 
 export default function AssetsList() {
   const [searchInput, setSearchInput] = useState("");
@@ -39,6 +46,7 @@ export default function AssetsList() {
   const [selectedUser, setSelectedUser] = useState("");
   const [assigning, setAssigning] = useState(false);
   const [returning, setReturning] = useState(null);
+  const [usersLoading, setUsersLoading] = useState(false);
 
   const filtered = useMemo(
     () =>
@@ -103,13 +111,19 @@ export default function AssetsList() {
   }, [page, search]);
 
   const fetchUsers = async () => {
-    const res = await API.getUsers();
+    setUsersLoading(true);
 
-    if (res.success) {
-      const rows = res.message?.data || res.data || [];
-      setUsers(rows);
-    } else {
-      toast.error("Failed to load users");
+    try {
+      const res = await API.getUsers();
+
+      if (res.success) {
+        const rows = res.message?.data || res.data || [];
+        setUsers(rows);
+      } else {
+        toast.error("Failed to load users");
+      }
+    } finally {
+      setUsersLoading(false);
     }
   };
 
@@ -118,7 +132,7 @@ export default function AssetsList() {
     setSelectedUser("");
     setAssignModal(true);
 
-    await fetchUsers();
+    fetchUsers();
   };
 
   const handleAssignAsset = async () => {
@@ -291,11 +305,14 @@ export default function AssetsList() {
               </button>
             )}
           </div>
-          <span className="text-xs text-[#8e8576] shrink-0">
-            {total > 0 && (
+          <span className="text-xs text-[#8e8576] shrink-0 min-w-[120px] text-right">
+            {!loading && total > 0 && (
               <>
-                <span className="font-semibold text-[#544b40]">{total}</span>{" "}
-                result{total !== 1 ? "s" : ""}
+                Showing{" "}
+                <span className="font-semibold text-[#544b40]">
+                  {from}–{to}
+                </span>{" "}
+                of <span className="font-semibold text-[#544b40]">{total}</span>
               </>
             )}
           </span>
@@ -398,7 +415,7 @@ export default function AssetsList() {
               ) : filtered.length === 0 ? (
                 <tr style={{ height: bodyH }}>
                   <td colSpan={8} className="text-center align-middle">
-                    <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="flex flex-col items-center gap-2">
                       <svg
                         width="36"
                         height="36"
@@ -409,15 +426,18 @@ export default function AssetsList() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       >
-                        <circle cx="12" cy="12" r="3" />
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
                       </svg>
+
                       <p className="text-sm text-[#8e8576]">
-                        {searchInput
-                          ? `No results for "${searchInput}"`
+                        {search
+                          ? `No results for "${search}"`
                           : "No assets found"}
                       </p>
-                      {searchInput && (
+
+                      {search && (
                         <button
                           onClick={() => setSearchInput("")}
                           className="text-xs text-[#c6212f] hover:underline"
@@ -470,13 +490,13 @@ export default function AssetsList() {
 
                       <td className="px-4 text-center">
                         <span className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                          {asset.condition || "—"}
+                          {formatCondition(asset.condition)}
                         </span>
                       </td>
 
                       <td className="px-4 text-center">
                         <span className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-700">
-                          {asset.status || "—"}
+                          {formatCondition(asset.status)}
                         </span>
                       </td>
 
@@ -692,19 +712,23 @@ export default function AssetsList() {
 
             <h2 className="text-xl font-semibold mb-5">Assign Asset</h2>
 
-            <select
-              value={selectedUser}
-              onChange={(e) => setSelectedUser(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-5"
-            >
-              <option value="">Select User</option>
+            {usersLoading ? (
+              <div className="h-12 rounded-lg bg-black/6 animate-pulse mb-5" />
+            ) : (
+              <select
+                value={selectedUser}
+                onChange={(e) => setSelectedUser(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-5"
+              >
+                <option value="">Select User</option>
 
-              {users.map((user) => (
-                <option key={user._id} value={user._id}>
-                  {user.name}
-                </option>
-              ))}
-            </select>
+                {users.map((user) => (
+                  <option key={user._id} value={user._id}>
+                    {user.name}
+                  </option>
+                ))}
+              </select>
+            )}
 
             <div className="flex justify-end gap-3">
               <button

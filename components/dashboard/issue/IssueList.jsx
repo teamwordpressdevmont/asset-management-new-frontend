@@ -176,6 +176,7 @@ export default function IssueList() {
   const bodyH = ROW_H * PER_PAGE;
   const pageNums = buildPageNums(currentPage, lastPage);
   const columnCount = isAdmin ? 7 : 6;
+  console.log(authUser?.role?.name === "user");
   return (
     <>
       <div className="space-y-5">
@@ -195,24 +196,26 @@ export default function IssueList() {
                 : `${total} issue${total !== 1 ? "s" : ""} total`}
             </p>
           </div>
-          <Link
-            href="/issue/add"
-            className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#C6212F] rounded-[10px] hover:bg-[#a81b27] transition-all duration-200 shadow-[0_4px_14px_rgba(198,33,47,0.3)] hover:shadow-[0_6px_20px_rgba(198,33,47,0.45)]"
-          >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
+          {authUser?.role?.name === "user" && (
+            <Link
+              href="/issue/add"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#C6212F] rounded-[10px] hover:bg-[#a81b27] transition-all duration-200 shadow-[0_4px_14px_rgba(198,33,47,0.3)] hover:shadow-[0_6px_20px_rgba(198,33,47,0.45)]"
             >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Add Issue
-          </Link>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Issue
+            </Link>
+          )}
         </div>
 
         {/* ── Card ── */}
@@ -361,6 +364,34 @@ export default function IssueList() {
                       )}
                     </tr>
                   ))
+                ) : paginatedIssues.length === 0 ? (
+                  <tr style={{ height: bodyH }}>
+                    <td
+                      colSpan={columnCount}
+                      className="text-center align-middle"
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <svg
+                          width="36"
+                          height="36"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#c6c0b5"
+                          strokeWidth="1.4"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <path d="M16 10a4 4 0 0 1-8 0" />
+                        </svg>
+
+                        <p className="text-sm text-[#8e8576]">
+                          No issues found
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
                 ) : (
                   // ── Data rows ──
                   <>
@@ -380,7 +411,9 @@ export default function IssueList() {
                           </span>
                         </td>
 
-                        <td className="px-4 text-[13px] text-[#544b40] truncate">{issue.type}</td>
+                        <td className="px-4 text-[13px] text-[#544b40] truncate">
+                          {issue.type}
+                        </td>
 
                         <td className="px-4">
                           <div className="max-w-[250px] text-[13px] text-[#544b40] truncate">
@@ -388,7 +421,9 @@ export default function IssueList() {
                           </div>
                         </td>
 
-                        <td className="px-4 text-[13px] text-[#544b40] truncate">{issue.reportedBy?.name}</td>
+                        <td className="px-4 text-[13px] text-[#544b40] truncate">
+                          {issue.reportedBy?.name}
+                        </td>
 
                         <td className="px-4 text-center text-[13px] text-[#544b40] truncate">
                           <StatusBadge status={issue.status} />
