@@ -159,6 +159,28 @@ export default function OwnAssetList() {
 
     setSubmitting(false);
   };
+
+  const handleRequestStatus = async (id, status) => {
+    try {
+      setUpdatingId(id);
+
+      const res = await API.updateReturnRequestStatus(id, {
+        status,
+      });
+
+      if (res.success) {
+        toast.success(`Request ${status} successfully`);
+        fetchRequests();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+  
   return (
     <>
       <div className="space-y-5">

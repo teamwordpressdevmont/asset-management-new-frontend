@@ -328,9 +328,7 @@ export default function AddCompanyForm() {
                         ) : (
                             <>
                                 Save Company
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M5 12H19M13 6L19 12L13 18" />
-                                </svg>
+                               
                             </>
                         )}
                     </button>

@@ -119,7 +119,18 @@ export const API = {
       "yes",
     );
   },
+  updateReturnRequestStatus: (id, data) =>
+    hitAPI(`/return-requests/${id}`, data, "PATCH", "yes"),
+
   // return request API End
+
+  // notification api start
+  getNotifications: () => hitAPI("/notifications", {}, "GET", "yes"),
+  getWarrantyAlerts: () => hitAPI("/notifications/warranty-alerts", {}, "GET", "yes"),
+  markNotificationAsRead: (id) => hitAPI(`/notifications/${id}/read`, {}, "PATCH", "yes"),
+  markAllNotificationsAsRead: () => hitAPI("/notifications/read-all", {}, "PATCH", "yes"),
+  deleteNotification: (id) => hitAPI(`/notifications/${id}`, {}, "DELETE", "yes"),
+  // notification api end
 };
 
 async function hitAPI(endpoint, data, method, token = null) {

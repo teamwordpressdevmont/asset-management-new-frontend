@@ -17,6 +17,7 @@ const roleRoutes = {
     "/vendors",
     "/profile",
     "/issue",
+    "/notifications",
   ],
   admin: [
     "/dashboard",
@@ -27,8 +28,16 @@ const roleRoutes = {
     "/profile",
     "/issue",
     "/return-requests",
+    "/notifications",
   ],
-  user: ["/dashboard", "/profile", "/own-assets", "/issue/create", "/issue"],
+  user: [
+    "/dashboard",
+    "/profile",
+    "/own-assets",
+    "/issue/create",
+    "/issue",
+    "/notifications",
+  ],
 };
 
 export function middleware(request) {

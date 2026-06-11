@@ -161,7 +161,7 @@ export default function AddCategoryForm() {
                         {loading ? (
                             <><svg className="animate-spin mr-2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>Saving...</>
                         ) : (
-                            <>Save Category<svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12H19M13 6L19 12L13 18" /></svg></>
+                            <>Save Category</>
                         )}
                     </button>
                 </div>

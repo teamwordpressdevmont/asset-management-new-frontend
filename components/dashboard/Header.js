@@ -112,9 +112,9 @@ export default function Header() {
       {/* Right — avatar dropdown */}
       <div className="relative flex items-center gap-4" ref={dropdownRef}>
         {/* Notification */}
-        <div className="notification shadow-lg border border-[#C6212F] rounded-xl p-3.25 cursor-pointer">
+        <Link href="/notifications" className="notification shadow-lg border border-[#C6212F] rounded-xl p-3.25 cursor-pointer">
           <FaBell className="w-5 h-5 text-[#C6212F]" />
-        </div>
+        </Link>
 
         {/* Trigger button */}
         <button
