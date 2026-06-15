@@ -49,11 +49,13 @@ export default function AssetsCategoryList() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
   const [toggling, setToggling] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("");
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
     const params = { page, limit: PER_PAGE };
     if (search) params.search = search;
+    if (statusFilter) params.status = statusFilter;
     const res = await API.getAssetCategories(params);
     if (res.success) {
       const body = res.message;
@@ -67,7 +69,7 @@ export default function AssetsCategoryList() {
       toast.error(res.message || "Failed to load categories.");
     }
     setLoading(false);
-  }, [page, search]);
+  }, [page, search, statusFilter]);
 
   useEffect(() => {
     fetchCategories();
@@ -171,60 +173,63 @@ export default function AssetsCategoryList() {
       </div>
 
       <div className="bg-white rounded-2xl overflow-hidden border border-[#f0ebe3]">
-        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#f0ebe3]">
-          <div className="flex items-center gap-2.5 bg-[#fbf8f2] border border-[#e5dfd3] rounded-[10px] px-3.5 py-0 shadow-sm w-72 focus-within:border-[#c6212f] focus-within:shadow-[0_0_0_3px_rgba(198,33,47,0.08)] transition-all">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 px-5 py-4 border-b border-[#f0ebe3] bg-[#fcfaf7]">
+
+          {/* Search */}
+          <div className="flex items-center gap-2.5 bg-white border border-[#e5dfd3] rounded-xl px-3.5 shadow-sm w-full lg:w-[340px] focus-within:border-[#c6212f] focus-within:shadow-[0_0_0_3px_rgba(198,33,47,0.08)] transition-all">
             <svg
-              width="14"
-              height="14"
+              width="15"
+              height="15"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#8e8576"
               strokeWidth="2"
-              strokeLinecap="round"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
+
             <input
               type="text"
               placeholder="Search categories..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full py-2.5 bg-transparent text-sm text-[#15100B] placeholder-[#8e8576] border-none outline-none"
+              className="w-full h-11 bg-transparent text-sm text-[#15100B] placeholder-[#8e8576] outline-none"
             />
-            {searchInput && (
+          </div>
+
+          {/* Right Side */}
+          <div className="flex items-center gap-3">
+
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="h-11 min-w-[170px] rounded-xl border border-[#e5dfd3] bg-white px-4 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+            >
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+
+            {(statusFilter || searchInput) && (
               <button
-                onClick={() => setSearchInput("")}
-                className="text-[#8e8576] hover:text-[#c6212f] transition-colors"
+                onClick={() => {
+                  setStatusFilter("");
+                  setSearchInput("");
+                  setSearch("");
+                  setPage(1);
+                }}
+                className="h-11 px-5 rounded-xl border border-[#f3c7cb] bg-white text-[#c6212f] text-sm font-medium hover:bg-[#fff5f6] transition-colors"
               >
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
+                Clear
               </button>
             )}
-          </div>
-          <span className="text-xs text-[#8e8576] shrink-0 min-w-[120px] text-right">
-            {!loading && total > 0 && (
-              <>
-                Showing{" "}
-                <span className="font-semibold text-[#544b40]">
-                  {from}–{to}
-                </span>{" "}
-                of <span className="font-semibold text-[#544b40]">{total}</span>
-              </>
-            )}
-          </span>
-        </div>
 
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm table-fixed">
             <colgroup>

@@ -202,6 +202,10 @@ export default function Profile() {
                       src={preview}
                       alt="avatar"
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        clearPhoto();
+                      }}
                     />
                   ) : (
                     <div className="flex flex-col items-center gap-1">

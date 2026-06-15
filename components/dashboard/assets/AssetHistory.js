@@ -30,6 +30,7 @@ export default function AssetHistory() {
       fetchHistory();
     }
   }, [id]);
+  
   const getActionTitle = (action) => {
     const map = {
       created: "Asset Created",

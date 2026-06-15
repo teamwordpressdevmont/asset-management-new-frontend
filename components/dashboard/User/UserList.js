@@ -92,11 +92,16 @@ export default function UserList() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
   const [toggling, setToggling] = useState(null);
+  const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     const params = { page, limit: PER_PAGE };
     if (search) params.search = search;
+    if (roleFilter) params.role = roleFilter;
+    if (statusFilter) params.status = statusFilter;
     const res = await API.getUsers(params);
     if (res.success) {
       const body = res.message;
@@ -110,7 +115,7 @@ export default function UserList() {
       toast.error(res.message || "Failed to load users.");
     }
     setLoading(false);
-  }, [page, search]);
+  }, [page, search, roleFilter, statusFilter]);
 
   useEffect(() => {
     fetchUsers();
@@ -255,7 +260,47 @@ export default function UserList() {
               </button>
             )}
           </div>
-          <span className="text-xs text-[#8e8576] shrink-0 min-w-[120px] text-right">
+          <div className="flex items-center gap-3 ml-auto">
+            <select
+              value={roleFilter}
+              onChange={(e) => {
+                setRoleFilter(e.target.value);
+                setPage(1);
+              }}
+              className="h-11 min-w-[170px] rounded-xl border border-[#e5dfd3] bg-white px-4 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+            >
+              <option value="">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+            </select>
+
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="h-11 min-w-[170px] rounded-xl border border-[#e5dfd3] bg-white px-4 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+            >
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+
+            {(roleFilter || statusFilter) && (
+              <button
+                onClick={() => {
+                  setRoleFilter("");
+                  setStatusFilter("");
+                  setPage(1);
+                }}
+                className="h-11 px-5 rounded-xl border border-[#f3c7cb] bg-white text-[#c6212f] text-sm font-medium hover:bg-[#fff5f6]"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          {/* <span className="text-xs text-[#8e8576] shrink-0 min-w-[120px] text-right">
             {!loading && total > 0 && (
               <>
                 Showing{" "}
@@ -265,7 +310,7 @@ export default function UserList() {
                 of <span className="font-semibold text-[#544b40]">{total}</span>
               </>
             )}
-          </span>
+          </span> */}
         </div>
 
         <div className="overflow-x-auto">

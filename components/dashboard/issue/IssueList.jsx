@@ -64,6 +64,19 @@ export default function IssueList() {
   const [remarks, setRemarks] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [showFilters, setShowFilters] = useState(false);
+
+  const [statusFilter, setStatusFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [actionFilter, setActionFilter] = useState("");
+  const [reportingDate, setReportingDate] = useState("");
+  const [issueStartDate, setIssueStartDate] = useState("");
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    lastPage: 1,
+    total: 0,
+  });
+
   const isAdmin = authUser?.role?.name == "admin";
   useEffect(() => {
     const user = getUser();
@@ -83,21 +96,55 @@ export default function IssueList() {
 
     setLoading(true);
 
-    const params =
-      authUser.role?.name === "admin" || authUser.role?.name === "super_admin"
-        ? {}
-        : { myIssues: "true" };
+    const params = {
+      page,
+      limit: PER_PAGE,
+    };
+
+    if (search) params.search = search;
+    if (statusFilter) params.status = statusFilter;
+    if (typeFilter) params.type = typeFilter;
+    if (actionFilter) params.action = actionFilter;
+    if (reportingDate) params.reportingDate = reportingDate;
+    if (issueStartDate) params.issueStartDate = issueStartDate;
+
+    if (
+      authUser.role?.name !== "admin" &&
+      authUser.role?.name !== "super_admin"
+    ) {
+      params.myIssues = "true";
+    }
 
     const res = await API.getIssues(params);
+    console.log(res);
 
     if (res.success) {
-      setIssues(res.message?.data || []);
+      const rows = res.message?.data || [];
+      const pg = res.message?.pagination || {};
+
+      setIssues(rows);
+      setFilteredIssues(rows);
+
+      setPagination({
+        currentPage: pg.page || page,
+        lastPage: pg.lastPage || 1,
+        total: pg?.total ?? rows.length,
+      });
     } else {
       toast.error(res.message || "Failed to load issues.");
     }
 
     setLoading(false);
-  }, [authUser]);
+  }, [
+    authUser,
+    page,
+    search,
+    statusFilter,
+    typeFilter,
+    actionFilter,
+    reportingDate,
+    issueStartDate,
+  ]);
 
   useEffect(() => {
     if (!authUser) return;
@@ -113,34 +160,10 @@ export default function IssueList() {
   }, [searchInput]);
 
   // Filter issues whenever source data or search term changes
-  useEffect(() => {
-    let rows = [...issues];
-    if (search) {
-      rows = rows.filter(
-        (item) =>
-          item.assetId?.title?.toLowerCase().includes(search) ||
-          item.type?.toLowerCase().includes(search) ||
-          item.description?.toLowerCase().includes(search) ||
-          item.reportedBy?.name?.toLowerCase().includes(search),
-      );
-    }
-    setFilteredIssues(rows);
-    setPage(1);
-  }, [issues, search]);
 
-  const handleStatusUpdate = async (issue, status) => {
-    if (!isAdmin) {
-      toast.error("Only admin can update issue status");
-      return;
-    }
-    const res = await API.updateIssueStatus(issue._id, { status, remarks: "" });
-    if (res.success) {
-      toast.success("Issue updated successfully");
-      fetchIssues();
-    } else {
-      toast.error(res.message);
-    }
-  };
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, typeFilter, actionFilter, reportingDate, issueStartDate]);
 
   const submitUpdate = async () => {
     if (!selectedIssue) return;
@@ -165,18 +188,19 @@ export default function IssueList() {
     setSubmitting(false);
   };
 
-  // ── Pagination ────────────────────────────────────────────────────────────
-  const total = filteredIssues.length;
-  const lastPage = Math.ceil(total / PER_PAGE) || 1;
-  const currentPage = page;
-  const start = (currentPage - 1) * PER_PAGE;
-  const paginatedIssues = filteredIssues.slice(start, start + PER_PAGE);
-  const from = total === 0 ? 0 : start + 1;
-  const to = Math.min(start + PER_PAGE, total);
+  // ── Pagination ───
+  const total = pagination.total;
+  const lastPage = pagination.lastPage;
+  const currentPage = pagination.currentPage;
+  const paginatedIssues = filteredIssues;
+  const from = total === 0 ? 0 : (currentPage - 1) * PER_PAGE + 1;
+  const to = Math.min(currentPage * PER_PAGE, total);
   const bodyH = ROW_H * PER_PAGE;
   const pageNums = buildPageNums(currentPage, lastPage);
   const columnCount = isAdmin ? 7 : 6;
-  console.log(authUser?.role?.name === "user");
+
+  // ── Pagination ─--
+
   return (
     <>
       <div className="space-y-5">
@@ -262,19 +286,90 @@ export default function IssueList() {
                 </button>
               )}
             </div>
-            <span className="text-xs text-[#8e8576] shrink-0 min-w-[120px] text-right">
-              {!loading && total > 0 && (
-                <>
-                  Showing{" "}
-                  <span className="font-semibold text-[#544b40]">
-                    {from}–{to}
-                  </span>{" "}
-                  of{" "}
-                  <span className="font-semibold text-[#544b40]">{total}</span>
-                </>
-              )}
-            </span>
+            <button
+              onClick={() => setShowFilters((v) => !v)}
+              className="cursor-pointer flex items-center justify-center w-11 h-11 rounded-xl border border-[#e5dfd3] bg-white hover:border-[#c6212f]"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="7" y1="12" x2="17" y2="12" />
+                <line x1="10" y1="18" x2="14" y2="18" />
+              </svg>
+            </button>
           </div>
+          {showFilters && (
+            <div className="px-5 py-4 border-t border-[#f0ebe3]">
+              <div className="grid grid-cols-6 gap-3">
+                <CustomSelect
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  options={[
+                    { value: "", label: "All Status" },
+                    { value: "open", label: "Open" },
+                    { value: "in_progress", label: "In Progress" },
+                    { value: "resolved", label: "Resolved" },
+                    { value: "rejected", label: "Rejected" },
+                  ]}
+                />
+
+                <CustomSelect
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  options={[
+                    { value: "", label: "All Types" },
+                    { value: "damage", label: "Damage" },
+                    { value: "lost", label: "Lost" },
+                    { value: "faulty", label: "Faulty" },
+                    { value: "other", label: "Other" },
+                  ]}
+                />
+
+                <CustomSelect
+                  value={actionFilter}
+                  onChange={(e) => setActionFilter(e.target.value)}
+                  options={[
+                    { value: "", label: "All Actions" },
+                    { value: "accepted", label: "Accepted" },
+                    { value: "resolved", label: "Resolved" },
+                    { value: "rejected", label: "Rejected" },
+                  ]}
+                />
+
+                <input
+                  type="date"
+                  value={reportingDate}
+                  onChange={(e) => setReportingDate(e.target.value)}
+                  className="h-11 px-3 rounded-xl border border-[#e5dfd3]"
+                />
+
+                <input
+                  type="date"
+                  value={issueStartDate}
+                  onChange={(e) => setIssueStartDate(e.target.value)}
+                  className="h-11 px-3 rounded-xl border border-[#e5dfd3]"
+                />
+                <button
+                  onClick={() => {
+                    setStatusFilter("");
+                    setTypeFilter("");
+                    setActionFilter("");
+                    setReportingDate("");
+                    setIssueStartDate("");
+                  }}
+                  className="px-5 py-2 border border-red-200 text-red-500 rounded-xl"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Table */}
           <div className="overflow-x-auto">
@@ -364,7 +459,7 @@ export default function IssueList() {
                       )}
                     </tr>
                   ))
-                ) : paginatedIssues.length === 0 ? (
+                ) : paginatedIssues.length == 0 ? (
                   <tr style={{ height: bodyH }}>
                     <td
                       colSpan={columnCount}

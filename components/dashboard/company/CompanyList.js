@@ -67,25 +67,36 @@ export default function CompanyList() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
   const [toggling, setToggling] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("");
 
   const fetchCompanies = useCallback(async () => {
     setLoading(true);
-    const params = { page, limit: PER_PAGE };
+
+    const params = {
+      page,
+      limit: PER_PAGE,
+    };
+
     if (search) params.search = search;
+    if (statusFilter) params.status = statusFilter;
+
     const res = await API.getCompanies(params);
+
     if (res.success) {
       const body = res.message;
       const rows = body?.data ?? [];
       const pg = body?.pagination ?? {};
       const total = pg.total ?? rows.length;
       const lastPage = Math.ceil(total / (pg.limit ?? PER_PAGE)) || 1;
+
       setCompanies(rows);
       setPagination({ currentPage: page, lastPage, total });
     } else {
       toast.error(res.message || "Failed to load companies.");
     }
+
     setLoading(false);
-  }, [page, search]);
+  }, [page, search, statusFilter]);
 
   useEffect(() => {
     fetchCompanies();
@@ -232,7 +243,33 @@ export default function CompanyList() {
               </button>
             )}
           </div>
-          <span className="text-xs text-[#8e8576] shrink-0 min-w-[120px] text-right">
+          <div className="flex items-center gap-3">
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="h-11 min-w-[160px] rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+            >
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+
+            {statusFilter && (
+              <button
+                onClick={() => {
+                  setStatusFilter("");
+                  setPage(1);
+                }}
+                className="h-11 px-4 rounded-xl border border-[#f3c7cb] bg-white text-[#c6212f] text-sm font-medium"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          {/* <span className="text-xs text-[#8e8576] shrink-0 min-w-[120px] text-right">
             {!loading && total > 0 && (
               <>
                 Showing{" "}
@@ -242,7 +279,7 @@ export default function CompanyList() {
                 of <span className="font-semibold text-[#544b40]">{total}</span>
               </>
             )}
-          </span>
+          </span> */}
         </div>
 
         <div className="overflow-x-auto">

@@ -48,16 +48,22 @@ export default function AssetsList() {
   const [returning, setReturning] = useState(null);
   const [usersLoading, setUsersLoading] = useState(false);
 
+  const [statusFilter, setStatusFilter] = useState("");
+  const [conditionFilter, setConditionFilter] = useState("");
+  const [purchaseDate, setPurchaseDate] = useState("");
+  const [warrantyExpiry, setWarrantyExpiry] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+
   const filtered = useMemo(
     () =>
       searchInput.trim()
         ? assets.filter(
-            (a) =>
-              a.title.toLowerCase().includes(searchInput.toLowerCase()) ||
-              a.categoryId?.name
-                .toLowerCase()
-                .includes(searchInput.toLowerCase()),
-          )
+          (a) =>
+            a.title.toLowerCase().includes(searchInput.toLowerCase()) ||
+            a.categoryId?.name
+              .toLowerCase()
+              .includes(searchInput.toLowerCase()),
+        )
         : assets,
     [assets, searchInput],
   );
@@ -84,9 +90,12 @@ export default function AssetsList() {
       limit: PER_PAGE,
     };
 
-    if (search) {
-      params.search = search;
-    }
+    if (search) params.search = search;
+    if (conditionFilter) params.condition = conditionFilter;
+    if (purchaseDate) params.purchaseDate = purchaseDate;
+    if (warrantyExpiry) params.warrantyExpiry = warrantyExpiry;
+    if (statusFilter) params.status = statusFilter;
+    
 
     const res = await API.getAssets(params);
 
@@ -108,7 +117,14 @@ export default function AssetsList() {
     }
 
     setLoading(false);
-  }, [page, search]);
+  }, [
+    page,
+    search,
+    statusFilter,
+    conditionFilter,
+    purchaseDate,
+    warrantyExpiry,
+  ]);
 
   const fetchUsers = async () => {
     setUsersLoading(true);
@@ -219,6 +235,7 @@ export default function AssetsList() {
     fetchAssets();
     console.log(getUser());
   }, [fetchAssets]);
+
   useEffect(() => {
     const t = setTimeout(() => {
       setPage(1);
@@ -264,58 +281,210 @@ export default function AssetsList() {
 
       <div className="bg-white rounded-2xl overflow-hidden border border-[#f0ebe3]">
         {/* Toolbar */}
-        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#f0ebe3]">
-          <div className="flex items-center gap-2.5 bg-[#fbf8f2] border border-[#e5dfd3] rounded-[10px] px-3.5 py-0 shadow-sm w-72 focus-within:border-[#c6212f] focus-within:shadow-[0_0_0_3px_rgba(198,33,47,0.08)] transition-all">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#8e8576"
-              strokeWidth="2"
-              strokeLinecap="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search assets..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full py-2.5 bg-transparent text-sm text-[#15100B] placeholder-[#8e8576] border-none outline-none"
-            />
-            {searchInput && (
-              <button
-                onClick={() => setSearchInput("")}
-                className="text-[#8e8576] hover:text-[#c6212f] transition-colors"
-              >
+        <div className="px-5 py-5 border-b border-[#f0ebe3] ">
+          <div className="flex flex-col gap-4">
+
+            {/* Top Row */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+
+              {/* Search */}
+              <div className="flex items-center gap-2.5 bg-white border border-[#e5dfd3] rounded-xl px-3.5 shadow-sm w-full lg:w-[340px] focus-within:border-[#c6212f] focus-within:shadow-[0_0_0_3px_rgba(198,33,47,0.08)] transition-all">
                 <svg
-                  width="13"
-                  height="13"
+                  width="15"
+                  height="15"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
+                  stroke="#8e8576"
+                  strokeWidth="2"
                   strokeLinecap="round"
                 >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
                 </svg>
-              </button>
-            )}
+
+                <input
+                  type="text"
+                  placeholder="Search assets..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="w-full h-11 bg-transparent text-sm text-[#15100B] placeholder-[#8e8576] border-none outline-none"
+                />
+
+                {searchInput && (
+                  <button
+                    onClick={() => setSearchInput("")}
+                    className="text-[#8e8576] hover:text-[#c6212f] transition-colors"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {/* Right Side */}
+              <div className="flex items-center justify-between lg:justify-end gap-3">
+                {(statusFilter ||
+                  conditionFilter ||
+                  purchaseDate ||
+                  warrantyExpiry) && (
+                    <button
+                      onClick={() => {
+                        setStatusFilter("");
+                        setConditionFilter("");
+                        setPurchaseDate("");
+                        setWarrantyExpiry("");
+                        setPage(1);
+                      }}
+                      className="h-10 px-4 rounded-xl border border-[#f3c7cb] bg-white text-[#c6212f] text-sm font-medium hover:bg-[#fff5f6] transition-colors"
+                    >
+                      Clear Filters
+                    </button>
+                  )}
+                <div className="flex items-center gap-2">
+                  {(statusFilter ||
+                    conditionFilter ||
+                    purchaseDate ||
+                    warrantyExpiry) && (
+                      <button
+                        onClick={() => {
+                          setStatusFilter("");
+                          setConditionFilter("");
+                          setPurchaseDate("");
+                          setWarrantyExpiry("");
+                          setPage(1);
+                        }}
+                        className="h-10 px-4 rounded-xl border border-[#f3c7cb] bg-white text-[#c6212f] text-sm font-medium hover:bg-[#fff5f6]"
+                      >
+                        Clear
+                      </button>
+                    )}
+
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="h-10 px-4 rounded-xl border border-[#e5dfd3] bg-white text-[#544b40] text-sm font-medium hover:border-[#c6212f] hover:text-[#c6212f] transition-colors flex items-center gap-2"
+                  >
+                    Filters
+
+                    <svg
+                      className={`transition-transform ${showFilters ? "rotate-180" : ""}`}
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Filters */}
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${showFilters
+                  ? "max-h-[300px] opacity-100 mt-2"
+                  : "max-h-0 opacity-0"
+                }`}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+                {/* Status */}
+                <div>
+                  <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
+                    Status
+                  </label>
+
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value);
+                      setPage(1);
+                    }}
+                    className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+                  >
+                    <option value="">All Status</option>
+                    <option value="available">Available</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="return_requested">Return Requested</option>
+                    <option value="in_repair">In Repair</option>
+                    <option value="damaged">Damaged</option>
+                    <option value="lost">Lost</option>
+                    <option value="retired">Retired</option>
+                  </select>
+                </div>
+
+                {/* Condition */}
+                <div>
+                  <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
+                    Condition
+                  </label>
+
+                  <select
+                    value={conditionFilter}
+                    onChange={(e) => {
+                      setConditionFilter(e.target.value);
+                      setPage(1);
+                    }}
+                    className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+                  >
+                    <option value="">All Condition</option>
+                    <option value="new">New</option>
+                    <option value="good">Good</option>
+                    <option value="fair">Fair</option>
+                    <option value="damaged">Damaged</option>
+                  </select>
+                </div>
+
+                {/* Purchase Date */}
+                <div>
+                  <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
+                    Purchase Date
+                  </label>
+
+                  <input
+                    type="date"
+                    value={purchaseDate}
+                    onChange={(e) => {
+                      setPurchaseDate(e.target.value);
+                      setPage(1);
+                    }}
+                    className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+                  />
+                </div>
+
+                {/* Warranty Expiry */}
+                <div>
+                  <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
+                    Warranty Expiry
+                  </label>
+
+                  <input
+                    type="date"
+                    value={warrantyExpiry}
+                    onChange={(e) => {
+                      setWarrantyExpiry(e.target.value);
+                      setPage(1);
+                    }}
+                    className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+                  />
+                </div>
+
+              </div>
+            </div>
           </div>
-          <span className="text-xs text-[#8e8576] shrink-0 min-w-[120px] text-right">
-            {!loading && total > 0 && (
-              <>
-                Showing{" "}
-                <span className="font-semibold text-[#544b40]">
-                  {from}–{to}
-                </span>{" "}
-                of <span className="font-semibold text-[#544b40]">{total}</span>
-              </>
-            )}
-          </span>
         </div>
 
         {/* Table */}
