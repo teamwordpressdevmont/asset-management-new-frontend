@@ -80,20 +80,23 @@ export default function Header() {
       {/* Left — page title or greeting */}
       <div className="flex items-center">
         <div className="w-62.5 flex items-center gap-2">
-          <Image
+          {/* <Image
             src="/favico.png"
             alt="avatar"
             width={50}
             height={50}
             className=""
-          />
+          /> */}
           <Image
-            src="/logo2.png"
-            alt="avatar"
-            width={100}
-            height={100}
-            className=""
+            src="/logo-new.png"
+            alt="Asset Management System Logo"
+            width={64}
+            height={64}
           />
+          <div>
+            <h2 className="text-2xl font-bold text-red-800">Asset</h2>
+            <p className="text-xs text-red-800 font-semibold">Management System</p>
+          </div>
         </div>
         <div className="">
           <h2 className="text-base font-semibold text-gray-900">
@@ -176,16 +179,7 @@ export default function Header() {
                   circle: <circle cx="12" cy="7" r="4" />,
                   link: "/profile",
                 },
-                {
-                  label: "Settings",
-                  link: "/settings",
-                  icon: (
-                    <>
-                      <circle cx="12" cy="12" r="3" />
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                    </>
-                  ),
-                },
+
               ].map((item) => (
                 <li key={item.label}>
                   <Link href={item.link}>

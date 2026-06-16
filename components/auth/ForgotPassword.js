@@ -69,7 +69,12 @@ export default function ForgotPasswordForm() {
             {/* Form */}
             <div className="flex flex-col gap-6 items-center justify-center">
                 <div className="logo">
-                    <Image src="/logo.png" alt="Asset Management System Logo" width={1000} height={1000} className="w-34 h-24" />
+                    <Image
+                        src="/logo-new.png"
+                        alt="Asset Management System Logo"
+                        width={94}
+                        height={94}
+                    />
                 </div>
 
                 <div className="flex flex-col gap-4 min-w-110 bg-white shadow-lg p-8 rounded-2xl">

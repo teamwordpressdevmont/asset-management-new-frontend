@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import MySwal from "@/utlis/swal";
 import { API } from "@/utlis/api";
 import { getUser } from "@/utlis/auth";
+import CustomSelect from "@/components/ui/CustomSelect";
 
 const PER_PAGE = 9;
 const ROW_H = 53;
@@ -24,6 +25,24 @@ const formatCondition = (value) => {
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
+const statusOptions = [
+  { value: "", label: "All Status" },
+  { value: "available", label: "Available" },
+  { value: "assigned", label: "Assigned" },
+  { value: "return_requested", label: "Return Requested" },
+  { value: "in_repair", label: "In Repair" },
+  { value: "damaged", label: "Damaged" },
+  { value: "lost", label: "Lost" },
+  { value: "retired", label: "Retired" },
+];
+
+const conditionOptions = [
+  { value: "", label: "All Condition" },
+  { value: "new", label: "New" },
+  { value: "good", label: "Good" },
+  { value: "fair", label: "Fair" },
+  { value: "damaged", label: "Damaged" },
+];
 
 export default function AssetsList() {
   const [searchInput, setSearchInput] = useState("");
@@ -95,7 +114,7 @@ export default function AssetsList() {
     if (purchaseDate) params.purchaseDate = purchaseDate;
     if (warrantyExpiry) params.warrantyExpiry = warrantyExpiry;
     if (statusFilter) params.status = statusFilter;
-    
+
 
     const res = await API.getAssets(params);
 
@@ -373,18 +392,17 @@ export default function AssetsList() {
                     onClick={() => setShowFilters(!showFilters)}
                     className="h-10 px-4 rounded-xl border border-[#e5dfd3] bg-white text-[#544b40] text-sm font-medium hover:border-[#c6212f] hover:text-[#c6212f] transition-colors flex items-center gap-2"
                   >
-                    Filters
-
                     <svg
-                      className={`transition-transform ${showFilters ? "rotate-180" : ""}`}
-                      width="14"
-                      height="14"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
                     >
-                      <polyline points="6 9 12 15 18 9" />
+                      <line x1="4" y1="6" x2="20" y2="6" />
+                      <line x1="7" y1="12" x2="17" y2="12" />
+                      <line x1="10" y1="18" x2="14" y2="18" />
                     </svg>
                   </button>
                 </div>
@@ -394,95 +412,95 @@ export default function AssetsList() {
 
             {/* Filters */}
             <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${showFilters
-                  ? "max-h-[300px] opacity-100 mt-2"
-                  : "max-h-0 opacity-0"
+              className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 transition-all duration-300 ease-in-out ${showFilters ? "opacity-100 mt-2 pointer-events-auto" : "opacity-0 pointer-events-none h-0 overflow-hidden"
                 }`}
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
-                {/* Status */}
-                <div>
-                  <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
-                    Status
-                  </label>
-
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => {
-                      setStatusFilter(e.target.value);
-                      setPage(1);
-                    }}
-                    className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
-                  >
-                    <option value="">All Status</option>
-                    <option value="available">Available</option>
-                    <option value="assigned">Assigned</option>
-                    <option value="return_requested">Return Requested</option>
-                    <option value="in_repair">In Repair</option>
-                    <option value="damaged">Damaged</option>
-                    <option value="lost">Lost</option>
-                    <option value="retired">Retired</option>
-                  </select>
-                </div>
-
-                {/* Condition */}
-                <div>
-                  <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
-                    Condition
-                  </label>
-
-                  <select
-                    value={conditionFilter}
-                    onChange={(e) => {
-                      setConditionFilter(e.target.value);
-                      setPage(1);
-                    }}
-                    className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
-                  >
-                    <option value="">All Condition</option>
-                    <option value="new">New</option>
-                    <option value="good">Good</option>
-                    <option value="fair">Fair</option>
-                    <option value="damaged">Damaged</option>
-                  </select>
-                </div>
-
-                {/* Purchase Date */}
-                <div>
-                  <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
-                    Purchase Date
-                  </label>
-
-                  <input
-                    type="date"
-                    value={purchaseDate}
-                    onChange={(e) => {
-                      setPurchaseDate(e.target.value);
-                      setPage(1);
-                    }}
-                    className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
-                  />
-                </div>
-
-                {/* Warranty Expiry */}
-                <div>
-                  <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
-                    Warranty Expiry
-                  </label>
-
-                  <input
-                    type="date"
-                    value={warrantyExpiry}
-                    onChange={(e) => {
-                      setWarrantyExpiry(e.target.value);
-                      setPage(1);
-                    }}
-                    className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
-                  />
-                </div>
-
+              {/* Status */}
+              <div>
+                <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
+                  Status
+                </label>
+                <CustomSelect
+                  name="status"
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="All Status"
+                  options={[
+                    { value: "", label: "All Status" },
+                    { value: "available", label: "Available" },
+                    { value: "assigned", label: "Assigned" },
+                    { value: "return_requested", label: "Return Requested" },
+                    { value: "in_repair", label: "In Repair" },
+                    { value: "damaged", label: "Damaged" },
+                    { value: "lost", label: "Lost" },
+                    { value: "retired", label: "Retired" },
+                  ]}
+                />
               </div>
+
+              {/* Condition */}
+              <div>
+                <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
+                  Condition
+                </label>
+                <CustomSelect
+                  name="condition"
+                  value={conditionFilter}
+                  onChange={(e) => {
+                    setConditionFilter(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="All Condition"
+                  options={[
+                    { value: "", label: "All Condition" },
+                    { value: "new", label: "New" },
+                    { value: "good", label: "Good" },
+                    { value: "fair", label: "Fair" },
+                    { value: "damaged", label: "Damaged" },
+                  ]}
+                />
+              </div>
+
+
+              {/* Purchase Date */}
+              <div>
+                <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
+                  Purchase Date
+                </label>
+
+                <input
+                  type="date"
+                  value={purchaseDate}
+                  onChange={(e) => {
+                    setPurchaseDate(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+                />
+              </div>
+
+              {/* Warranty Expiry */}
+              <div>
+                <label className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8e8576]">
+                  Warranty Expiry
+                </label>
+
+                <input
+                  type="date"
+                  value={warrantyExpiry}
+                  onChange={(e) => {
+                    setWarrantyExpiry(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full h-11 rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
+                />
+              </div>
+
+
             </div>
           </div>
         </div>
@@ -869,55 +887,57 @@ export default function AssetsList() {
           </div>
         </div>
       </div>
-      {assignModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative">
-            <button
-              onClick={() => setAssignModal(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-black"
-            >
-              ✕
-            </button>
-
-            <h2 className="text-xl font-semibold mb-5">Assign Asset</h2>
-
-            {usersLoading ? (
-              <div className="h-12 rounded-lg bg-black/6 animate-pulse mb-5" />
-            ) : (
-              <select
-                value={selectedUser}
-                onChange={(e) => setSelectedUser(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-5"
-              >
-                <option value="">Select User</option>
-
-                {users.map((user) => (
-                  <option key={user._id} value={user._id}>
-                    {user.name}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            <div className="flex justify-end gap-3">
+      {
+        assignModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative">
               <button
                 onClick={() => setAssignModal(false)}
-                className="px-4 py-2 border rounded-lg"
+                className="absolute top-4 right-4 text-gray-500 hover:text-black"
               >
-                Cancel
+                ✕
               </button>
 
-              <button
-                onClick={handleAssignAsset}
-                disabled={assigning}
-                className="px-4 py-2 bg-[#C6212F] text-white rounded-lg disabled:opacity-50"
-              >
-                {assigning ? "Assigning..." : "Assign"}
-              </button>
+              <h2 className="text-xl font-semibold mb-5">Assign Asset</h2>
+
+              {usersLoading ? (
+                <div className="h-12 rounded-lg bg-black/6 animate-pulse mb-5" />
+              ) : (
+                <select
+                  value={selectedUser}
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-5"
+                >
+                  <option value="">Select User</option>
+
+                  {users.map((user) => (
+                    <option key={user._id} value={user._id}>
+                      {user.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setAssignModal(false)}
+                  className="px-4 py-2 border rounded-lg"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={handleAssignAsset}
+                  disabled={assigning}
+                  className="px-4 py-2 bg-[#C6212F] text-white rounded-lg disabled:opacity-50"
+                >
+                  {assigning ? "Assigning..." : "Assign"}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

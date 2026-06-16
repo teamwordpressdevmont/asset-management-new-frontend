@@ -104,11 +104,10 @@ export default function LoginForm() {
         <div className="loginForm flex flex-col gap-6 items-center justify-center">
           <div className="logo">
             <Image
-              src="/logo.png"
+              src="/logo-new.png"
               alt="Asset Management System Logo"
-              width={1000}
-              height={1000}
-              className="w-34 h-24"
+              width={94}
+              height={94}
             />
           </div>
 

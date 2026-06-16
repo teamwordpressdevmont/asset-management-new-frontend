@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { API } from "@/utlis/api";
+import CancelButton from "@/components/ui/CancelButton";
 
 const ASSET_URL = process.env.NEXT_PUBLIC_ASSET_URL ?? "";
 
@@ -441,12 +442,7 @@ export default function EditCompanyForm({ id }) {
         </div>
 
         <div className="flex justify-end mt-8 pt-6">
-          <Link
-            href="/company"
-            className="px-5 py-2.5 text-sm font-medium text-[#544b40] bg-[#fbf8f2] border border-[#e5dfd3] rounded-[10px] hover:border-[#c6c0b5] transition-colors mr-3"
-          >
-            Cancel
-          </Link>
+          <CancelButton />
           <button
             type="submit"
             disabled={loading || fetching}

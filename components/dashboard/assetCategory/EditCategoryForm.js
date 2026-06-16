@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { API } from "@/utlis/api";
+import CancelButton from "@/components/ui/CancelButton";
 
 const initialErrors = { name: "" };
 
@@ -144,9 +145,7 @@ export default function EditCategoryForm({ id }) {
 
                 {/* Submit */}
                 <div className="flex justify-end mt-8 pt-6">
-                    <Link href="/assets-category" className="px-5 py-2.5 text-sm font-medium text-[#544b40] bg-[#fbf8f2] border border-[#e5dfd3] rounded-[10px] hover:border-[#c6c0b5] transition-colors mr-3">
-                        Cancel
-                    </Link>
+                    <CancelButton />
                     <button type="submit" disabled={loading || fetching}
                         className="cursor-pointer gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-[#C6212F] rounded-[10px] hover:bg-[#a81b27] active:scale-[0.98] transition-all duration-200 shadow-[0_4px_14px_rgba(198,33,47,0.3)] hover:shadow-[0_6px_20px_rgba(198,33,47,0.45)] disabled:opacity-60 disabled:cursor-not-allowed min-w-[160px] min-h-[42px] flex items-center justify-center">
                         {loading ? (

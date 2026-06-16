@@ -6,6 +6,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { API } from "@/utlis/api";
 import CustomSelect from "@/components/ui/CustomSelect";
+import CancelButton from "@/components/ui/CancelButton";
 
 const ISSUE_TYPE_OPTIONS = [
   { value: "damage", label: "Damage" },
@@ -295,13 +296,7 @@ export default function CreateIssue() {
         </div>
         {/* Actions */}
         <div className="flex justify-end gap-3">
-          <Link
-            href="/asset-issues"
-            className="px-5 py-2.5 text-sm font-medium text-[#544b40] bg-[#fbf8f2] border border-[#e5dfd3] rounded-[10px]"
-          >
-            Cancel
-          </Link>
-
+          <CancelButton />
           <button
             type="submit"
             disabled={loading}

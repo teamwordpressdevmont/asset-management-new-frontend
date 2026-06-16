@@ -125,7 +125,10 @@ export const API = {
   // return request API End
 
   // notification api start
-  getNotifications: () => hitAPI("/notifications", {}, "GET", "yes"),
+  getNotifications: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return hitAPI(`/notifications${query ? `?${query}` : ""}`, {}, "GET", "yes");
+  },
   getWarrantyAlerts: () =>
     hitAPI("/notifications/warranty-alerts", {}, "GET", "yes"),
   markNotificationAsRead: (id) =>
