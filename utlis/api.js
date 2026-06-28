@@ -86,6 +86,17 @@ export const API = {
   deleteAsset: (id) => hitAPI(`/assets/${id}`, {}, "DELETE", "yes"),
   assetHistory: (id) => hitAPI(`/asset-history/${id}`, {}, "GET", "yes"),
   assignAsset: (data) => hitAPI(`/assets/assign`, data, "POST", "yes"),
+  exportAssetsExcel: async () => {
+    const token = Cookies.get("authToken");
+    const response = await fetch(`${BASE_URL}/assets/export/excel`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) throw new Error("Failed to export");
+    return await response.blob();
+  },
 
   // Asset Api end
 

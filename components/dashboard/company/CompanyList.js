@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { API } from "@/utlis/api";
 import toast from "react-hot-toast";
 import MySwal from "@/utlis/swal";
+import CustomSelect from "@/components/ui/CustomSelect";
 
 const PER_PAGE = 9;
 const ROW_H = 53;
@@ -244,18 +245,19 @@ export default function CompanyList() {
             )}
           </div>
           <div className="flex items-center gap-3">
-            <select
+            <CustomSelect
+              name="statusFilter"
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
                 setPage(1);
               }}
-              className="h-11 min-w-[160px] rounded-xl border border-[#e5dfd3] bg-white px-3 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
+              placeholder="All Status"
+              options={[
+                { value: "active", label: "Active" },
+                { value: "inactive", label: "Inactive" },
+              ]}
+            />
 
             {statusFilter && (
               <button

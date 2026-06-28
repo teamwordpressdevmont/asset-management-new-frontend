@@ -5,6 +5,7 @@ import { API } from "@/utlis/api";
 import { getUser } from "@/utlis/auth";
 import toast from "react-hot-toast";
 import MySwal from "@/utlis/swal";
+import CustomSelect from "@/components/ui/CustomSelect";
 
 const PER_PAGE = 9;
 const ROW_H = 53;
@@ -261,31 +262,33 @@ export default function UserList() {
             )}
           </div>
           <div className="flex items-center gap-3 ml-auto">
-            <select
+            <CustomSelect
+              name="roleFilter"
               value={roleFilter}
               onChange={(e) => {
                 setRoleFilter(e.target.value);
                 setPage(1);
               }}
-              className="h-11 min-w-[170px] rounded-xl border border-[#e5dfd3] bg-white px-4 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
-            >
-              <option value="">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
-            </select>
+              placeholder="All Roles"
+              options={[
+                { value: "admin", label: "Admin" },
+                { value: "user", label: "User" },
+              ]}
+            />
 
-            <select
+            <CustomSelect
+              name="statusFilter"
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
                 setPage(1);
               }}
-              className="h-11 min-w-[170px] rounded-xl border border-[#e5dfd3] bg-white px-4 text-sm text-[#544b40] outline-none focus:border-[#c6212f]"
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
+              placeholder="All Status"
+              options={[
+                { value: "active", label: "Active" },
+                { value: "inactive", label: "Inactive" },
+              ]}
+            />
 
             {(roleFilter || statusFilter) && (
               <button

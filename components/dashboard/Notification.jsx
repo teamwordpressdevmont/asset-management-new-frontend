@@ -45,7 +45,12 @@ export default function Notification() {
       );
     }
   };
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
   const markAllRead = async () => {
+    if (unreadCount == 0) {
+      toast.error("No unread notifications");
+      return;
+    }
     const res = await API.markAllNotificationsAsRead();
 
     if (res.success) {
@@ -59,7 +64,6 @@ export default function Notification() {
       );
     }
   };
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <div className="space-y-6">
@@ -160,8 +164,28 @@ export default function Notification() {
           ))}
         </div>
       ) : notifications.length === 0 ? (
-        <div className="bg-white rounded-2xl p-10 text-center">
-          No notifications found
+        <div className="flex flex-col items-center justify-center bg-white rounded-2xl p-16 text-center">
+          {/* Icon */}
+          <div className="w-14 h-14 mb-4 text-gray-400">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="w-[40px] h-[40px]"
+            >
+              <path d="M20 21l-8-4-8 4V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+
+          {/* Text */}
+          <h2 className="text-lg font-semibold text-gray-400">
+            No notifications found
+          </h2>
+
+          <p className="text-sm text-gray-400 mt-1">
+            You don’t have any notifications yet
+          </p>
         </div>
       ) : (
         <div className="space-y-4">

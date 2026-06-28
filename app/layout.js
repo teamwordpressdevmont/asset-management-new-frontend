@@ -1,10 +1,11 @@
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import ToasterProvider from "@/components/ToasterProvider";
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-outfit",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -15,8 +16,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className={`${inter.className} min-h-screen`}>
+    <html lang="en" className={`${outfit.variable} h-full antialiased`}>
+      <body className={`${outfit.className} min-h-screen tracking-wide `}>
         <ToasterProvider />
         {children}
       </body>

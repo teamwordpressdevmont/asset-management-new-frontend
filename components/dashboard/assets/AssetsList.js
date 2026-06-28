@@ -162,6 +162,29 @@ export default function AssetsList() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const blob = await API.exportAssetsExcel();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `assets-${Date.now()}.xlsx`;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Excel exported successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export excel");
+    }
+  };
+
   const openAssignModal = async (assetId) => {
     setSelectedAsset(assetId);
     setSelectedUser("");
@@ -278,7 +301,36 @@ export default function AssetsList() {
             {total} asset{total !== 1 ? "s" : ""} total
           </p>
         </div>
-        <Link
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border border-[#C6212F] text-[#C6212F] rounded-[10px] hover:bg-[#C6212F] hover:text-white transition-all"
+          >
+            Export Excel
+          </button>
+
+          <Link
+            href="/assets/add"
+            className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#C6212F] rounded-[10px] hover:bg-[#a81b27] transition-all duration-200 shadow-[0_4px_14px_rgba(198,33,47,0.3)] hover:shadow-[0_6px_20px_rgba(198,33,47,0.45)]"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+
+            Add Asset
+          </Link>
+        </div>
+        {/* <Link
           href="/assets/add"
           className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#C6212F] rounded-[10px] hover:bg-[#a81b27] transition-all duration-200 shadow-[0_4px_14px_rgba(198,33,47,0.3)] hover:shadow-[0_6px_20px_rgba(198,33,47,0.45)]"
         >
@@ -295,7 +347,7 @@ export default function AssetsList() {
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Add Asset
-        </Link>
+        </Link> */}
       </div>
 
       <div className="bg-white rounded-2xl overflow-hidden border border-[#f0ebe3]">
